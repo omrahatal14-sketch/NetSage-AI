@@ -1,0 +1,307 @@
+[
+  {
+    "log_id": "REV-20260819-223406",
+    "case_id": "CASE-002",
+    "case_title": "Default Gateway Missing on Management Switch",
+    "reviewer": "Automated Tester",
+    "review_date": "2026-08-19 22:34",
+    "verdict": "Accepted",
+    "error_category": "Validated Correct",
+    "original_ai_diagnosis": {},
+    "human_correction": {
+      "root_cause": "",
+      "corrected_fix": [],
+      "reviewer_notes": "Verified by automated unit test."
+    },
+    "lesson_learned": "Verified by automated unit test.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-223242",
+    "case_id": "CASE-002",
+    "case_title": "Default Gateway Missing on Management Switch",
+    "reviewer": "Automated Tester",
+    "review_date": "2026-08-19 22:32",
+    "verdict": "Accepted",
+    "error_category": "Validated Correct",
+    "original_ai_diagnosis": {},
+    "human_correction": {
+      "root_cause": "",
+      "corrected_fix": [],
+      "reviewer_notes": "Verified by automated unit test."
+    },
+    "lesson_learned": "Verified by automated unit test.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-223240",
+    "case_id": "CASE-002",
+    "case_title": "Default Gateway Missing on Management Switch",
+    "reviewer": "Automated Tester",
+    "review_date": "2026-08-19 22:32",
+    "verdict": "Accepted",
+    "error_category": "Validated Correct",
+    "original_ai_diagnosis": {},
+    "human_correction": {
+      "root_cause": "",
+      "corrected_fix": [],
+      "reviewer_notes": "Verified by automated unit test."
+    },
+    "lesson_learned": "Verified by automated unit test.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-222300",
+    "case_id": "CASE-008",
+    "case_title": "Switchport Security Err-Disabled Violation",
+    "reviewer": "Network EngineerSenior Engineer",
+    "review_date": "2026-08-19 22:23",
+    "verdict": "Edited",
+    "error_category": "Layer Skip (Diagnosed L3 before L1/L2)",
+    "original_ai_diagnosis": {
+      "case_id": "CASE-008",
+      "concept_tag": "STP / Security",
+      "confidence_level": "High",
+      "confidence_score": 0.96,
+      "evidence_quotes": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "Port      Name               Status       Vlan       Duplex  Speed Type",
+        "Fa0/5                        err-disabled 10           auto   auto 10/100BaseTX"
+      ],
+      "next_diagnostic_commands": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ],
+      "osi_layer": "Layer 2",
+      "reasoning_summary": "Observed symptom 'User plugged a laptop into wall jack Fa0/5 and the link light went amber. Host has no link or network connectivity.' correlates directly with configuration state in 'Switchport Security Err-Disabled Violation'. Evidence indicates fault at Layer 2.",
+      "recommended_fix_steps": [
+        "SW1(config)# interface FastEthernet0/5",
+        "SW1(config-if)# shutdown",
+        "SW1(config-if)# no switchport port-security mac-address sticky",
+        "SW1(config-if)# switchport port-security mac-address sticky",
+        "SW1(config-if)# no shutdown",
+        "SW1(config-if)# end"
+      ],
+      "risk_assessment": "Medium severity. Configuration modification should be verified against active routing tables.",
+      "root_cause": "Port security violation caused FastEthernet0/5 to enter 'err-disabled' state due to an unauthorized second MAC address.",
+      "title": "Switchport Security Err-Disabled Violation",
+      "verification_steps": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ]
+    },
+    "human_correction": {
+      "root_cause": "Fix adjusted to prevent command side-effects or table locking.",
+      "corrected_fix": "SW1(config)# interface FastEthernet0/5\nSW1(config-if)# shutdown\nSW1(config-if)# no switchport port-security mac-address sticky\nSW1(config-if)# switchport port-security mac-address sticky\nSW1(config-if)# no shutdown\nSW1(config-if)# end",
+      "reviewer_notes": "Fix adjusted to prevent command side-effects or table locking."
+    },
+    "lesson_learned": "Fix adjusted to prevent command side-effects or table locking.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-222259",
+    "case_id": "CASE-008",
+    "case_title": "Switchport Security Err-Disabled Violation",
+    "reviewer": "Network EngineerSenior Engineer",
+    "review_date": "2026-08-19 22:22",
+    "verdict": "Edited",
+    "error_category": "Layer Skip (Diagnosed L3 before L1/L2)",
+    "original_ai_diagnosis": {
+      "case_id": "CASE-008",
+      "concept_tag": "STP / Security",
+      "confidence_level": "High",
+      "confidence_score": 0.96,
+      "evidence_quotes": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "Port      Name               Status       Vlan       Duplex  Speed Type",
+        "Fa0/5                        err-disabled 10           auto   auto 10/100BaseTX"
+      ],
+      "next_diagnostic_commands": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ],
+      "osi_layer": "Layer 2",
+      "reasoning_summary": "Observed symptom 'User plugged a laptop into wall jack Fa0/5 and the link light went amber. Host has no link or network connectivity.' correlates directly with configuration state in 'Switchport Security Err-Disabled Violation'. Evidence indicates fault at Layer 2.",
+      "recommended_fix_steps": [
+        "SW1(config)# interface FastEthernet0/5",
+        "SW1(config-if)# shutdown",
+        "SW1(config-if)# no switchport port-security mac-address sticky",
+        "SW1(config-if)# switchport port-security mac-address sticky",
+        "SW1(config-if)# no shutdown",
+        "SW1(config-if)# end"
+      ],
+      "risk_assessment": "Medium severity. Configuration modification should be verified against active routing tables.",
+      "root_cause": "Port security violation caused FastEthernet0/5 to enter 'err-disabled' state due to an unauthorized second MAC address.",
+      "title": "Switchport Security Err-Disabled Violation",
+      "verification_steps": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ]
+    },
+    "human_correction": {
+      "root_cause": "Fix adjusted to prevent command side-effects or table locking.",
+      "corrected_fix": "SW1(config)# interface FastEthernet0/5\nSW1(config-if)# shutdown\nSW1(config-if)# no switchport port-security mac-address sticky\nSW1(config-if)# switchport port-security mac-address sticky\nSW1(config-if)# no shutdown\nSW1(config-if)# end",
+      "reviewer_notes": "Fix adjusted to prevent command side-effects or table locking."
+    },
+    "lesson_learned": "Fix adjusted to prevent command side-effects or table locking.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-222259",
+    "case_id": "CASE-008",
+    "case_title": "Switchport Security Err-Disabled Violation",
+    "reviewer": "Network EngineerSenior Engineer",
+    "review_date": "2026-08-19 22:22",
+    "verdict": "Edited",
+    "error_category": "Layer Skip (Diagnosed L3 before L1/L2)",
+    "original_ai_diagnosis": {
+      "case_id": "CASE-008",
+      "concept_tag": "STP / Security",
+      "confidence_level": "High",
+      "confidence_score": 0.96,
+      "evidence_quotes": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "Port      Name               Status       Vlan       Duplex  Speed Type",
+        "Fa0/5                        err-disabled 10           auto   auto 10/100BaseTX"
+      ],
+      "next_diagnostic_commands": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ],
+      "osi_layer": "Layer 2",
+      "reasoning_summary": "Observed symptom 'User plugged a laptop into wall jack Fa0/5 and the link light went amber. Host has no link or network connectivity.' correlates directly with configuration state in 'Switchport Security Err-Disabled Violation'. Evidence indicates fault at Layer 2.",
+      "recommended_fix_steps": [
+        "SW1(config)# interface FastEthernet0/5",
+        "SW1(config-if)# shutdown",
+        "SW1(config-if)# no switchport port-security mac-address sticky",
+        "SW1(config-if)# switchport port-security mac-address sticky",
+        "SW1(config-if)# no shutdown",
+        "SW1(config-if)# end"
+      ],
+      "risk_assessment": "Medium severity. Configuration modification should be verified against active routing tables.",
+      "root_cause": "Port security violation caused FastEthernet0/5 to enter 'err-disabled' state due to an unauthorized second MAC address.",
+      "title": "Switchport Security Err-Disabled Violation",
+      "verification_steps": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ]
+    },
+    "human_correction": {
+      "root_cause": "Fix adjusted to prevent command side-effects or table locking.",
+      "corrected_fix": "SW1(config)# interface FastEthernet0/5\nSW1(config-if)# shutdown\nSW1(config-if)# no switchport port-security mac-address sticky\nSW1(config-if)# switchport port-security mac-address sticky\nSW1(config-if)# no shutdown\nSW1(config-if)# end",
+      "reviewer_notes": "Fix adjusted to prevent command side-effects or table locking."
+    },
+    "lesson_learned": "Fix adjusted to prevent command side-effects or table locking.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-222258",
+    "case_id": "CASE-008",
+    "case_title": "Switchport Security Err-Disabled Violation",
+    "reviewer": "Network EngineerSenior Engineer",
+    "review_date": "2026-08-19 22:22",
+    "verdict": "Edited",
+    "error_category": "Layer Skip (Diagnosed L3 before L1/L2)",
+    "original_ai_diagnosis": {
+      "case_id": "CASE-008",
+      "concept_tag": "STP / Security",
+      "confidence_level": "High",
+      "confidence_score": 0.96,
+      "evidence_quotes": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "Port      Name               Status       Vlan       Duplex  Speed Type",
+        "Fa0/5                        err-disabled 10           auto   auto 10/100BaseTX"
+      ],
+      "next_diagnostic_commands": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ],
+      "osi_layer": "Layer 2",
+      "reasoning_summary": "Observed symptom 'User plugged a laptop into wall jack Fa0/5 and the link light went amber. Host has no link or network connectivity.' correlates directly with configuration state in 'Switchport Security Err-Disabled Violation'. Evidence indicates fault at Layer 2.",
+      "recommended_fix_steps": [
+        "SW1(config)# interface FastEthernet0/5",
+        "SW1(config-if)# shutdown",
+        "SW1(config-if)# no switchport port-security mac-address sticky",
+        "SW1(config-if)# switchport port-security mac-address sticky",
+        "SW1(config-if)# no shutdown",
+        "SW1(config-if)# end"
+      ],
+      "risk_assessment": "Medium severity. Configuration modification should be verified against active routing tables.",
+      "root_cause": "Port security violation caused FastEthernet0/5 to enter 'err-disabled' state due to an unauthorized second MAC address.",
+      "title": "Switchport Security Err-Disabled Violation",
+      "verification_steps": [
+        "SW1# show interfaces FastEthernet0/5 status",
+        "SW1# show port-security interface FastEthernet0/5"
+      ]
+    },
+    "human_correction": {
+      "root_cause": "Fix adjusted to prevent command side-effects or table locking.",
+      "corrected_fix": "SW1(config)# interface FastEthernet0/5\nSW1(config-if)# shutdown\nSW1(config-if)# no switchport port-security mac-address sticky\nSW1(config-if)# switchport port-security mac-address sticky\nSW1(config-if)# no shutdown\nSW1(config-if)# end",
+      "reviewer_notes": "Fix adjusted to prevent command side-effects or table locking."
+    },
+    "lesson_learned": "Fix adjusted to prevent command side-effects or table locking.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-221421",
+    "case_id": "CASE-006",
+    "case_title": "ACL Inverted Wildcard Mask Blocking Web Server",
+    "reviewer": "Network EngineerSenior Engineer",
+    "review_date": "2026-08-19 22:14",
+    "verdict": "Edited",
+    "error_category": "Layer Skip (Diagnosed L3 before L1/L2)",
+    "original_ai_diagnosis": {
+      "case_id": "CASE-006",
+      "concept_tag": "ACL",
+      "confidence_level": "High",
+      "confidence_score": 0.96,
+      "evidence_quotes": [
+        "20 deny ip any any (142 matches)"
+      ],
+      "next_diagnostic_commands": [
+        "PC-Sales> curl http://10.1.1.100",
+        "R1# show access-lists 101"
+      ],
+      "osi_layer": "Layer 4",
+      "reasoning_summary": "Observed symptom 'Sales branch subnet (172.16.10.0/24) cannot reach internal Web Server (10.1.1.100:80). Traffic is blocked at border router R1.' correlates directly with configuration state in 'ACL Inverted Wildcard Mask Blocking Web Server'. Evidence indicates fault at Layer 4.",
+      "recommended_fix_steps": [
+        "R1(config)# ip access-list extended 101",
+        "R1(config-ext-nacl)# no 10",
+        "R1(config-ext-nacl)# 10 permit tcp 172.16.10.0 0.0.0.255 host 10.1.1.100 eq www",
+        "R1(config-ext-nacl)# end",
+        "R1# write memory"
+      ],
+      "risk_assessment": "High severity. Configuration modification should be verified against active routing tables.",
+      "root_cause": "Inverted wildcard mask in ACL 101 line 10. Subnet mask 255.255.255.0 was used instead of wildcard mask 0.0.0.255.",
+      "title": "ACL Inverted Wildcard Mask Blocking Web Server",
+      "verification_steps": [
+        "PC-Sales> curl http://10.1.1.100",
+        "R1# show access-lists 101"
+      ]
+    },
+    "human_correction": {
+      "root_cause": "Fix adjusted to prevent command side-effects or taVerified that wildcard mask was corrected to 0.0.0.255 to allow internal Web Server traffic.ble locking.",
+      "corrected_fix": "R1(config)# ip access-list extended 101\nR1(config-ext-nacl)# no 10\nR1(config-ext-nacl)# 10 permit tcp 172.16.10.0 0.0.0.255 host 10.1.1.100 eq www\nR1(config-ext-nacl)# end\nR1# write memory",
+      "reviewer_notes": "Fix adjusted to prevent command side-effects or taVerified that wildcard mask was corrected to 0.0.0.255 to allow internal Web Server traffic.ble locking."
+    },
+    "lesson_learned": "Fix adjusted to prevent command side-effects or taVerified that wildcard mask was corrected to 0.0.0.255 to allow internal Web Server traffic.ble locking.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  },
+  {
+    "log_id": "REV-20260819-214726",
+    "case_id": "CASE-002",
+    "case_title": "Default Gateway Missing on Management Switch",
+    "reviewer": "Automated Tester",
+    "review_date": "2026-08-19 21:47",
+    "verdict": "Accepted",
+    "error_category": "Validated Correct",
+    "original_ai_diagnosis": {},
+    "human_correction": {
+      "root_cause": "",
+      "corrected_fix": [],
+      "reviewer_notes": "Verified by automated unit test."
+    },
+    "lesson_learned": "Verified by automated unit test.",
+    "guardrail_implemented": "Review logged in NetSage Responsible AI Audit Trail."
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "log_id": "RAI-001",
+    "case_id": "CASE-006",
+    "case_title": "ACL Inverted Wildcard Mask Blocking Web Server",
+    "reviewer": "Alex Chen (Lead Network Architect)",
+    "review_date": "2026-08-19",
+    "verdict": "Edited",
+    "error_category": "Subtle Wildcard Mask Hallucination",
+    "original_ai_diagnosis": {
+      "root_cause": "The ACL rule 10 is missing TCP established flag.",
+      "suggested_fix": "R1(config)# ip access-list extended 101\nR1(config-ext-nacl)# 10 permit tcp 172.16.10.0 255.255.255.0 host 10.1.1.100 eq www established",
+      "risk_level": "Medium"
+    },
+    "human_correction": {
+      "root_cause": "The issue is an inverted wildcard mask (255.255.255.0 was used instead of Cisco wildcard 0.0.0.255), not a missing established flag.",
+      "corrected_fix": "R1(config)# ip access-list extended 101\nR1(config-ext-nacl)# no 10\nR1(config-ext-nacl)# 10 permit tcp 172.16.10.0 0.0.0.255 host 10.1.1.100 eq www\nR1(config-ext-nacl)# end",
+      "reviewer_notes": "The AI hallucinated that the TCP rule required an 'established' keyword, failing to recognize that standard subnet masks in Cisco ACLs act as inverted wildcards and prevent client connection initiation."
+    },
+    "lesson_learned": "LLMs often confuse standard subnet masks with Cisco ACL wildcard inverse masks. Deterministic regex rule checking is critical to flag '255.255.255.0' inside ACL lines.",
+    "guardrail_implemented": "Added Deterministic Rule RULE-ACL-001 that intercepts 255.255.255.x strings within access-list statements."
+  },
+  {
+    "log_id": "RAI-002",
+    "case_id": "CASE-012",
+    "case_title": "Interface Administratively Down on Core Trunk",
+    "reviewer": "Sarah Jenkins (Senior NOC Engineer)",
+    "review_date": "2026-08-19",
+    "verdict": "Rejected",
+    "error_category": "Layer Skip (Diagnosing L3 before L1)",
+    "original_ai_diagnosis": {
+      "root_cause": "Spanning-tree root bridge re-election failure or missing OSPF routing statement on Building B distribution switch.",
+      "suggested_fix": "DS1(config)# router ospf 1\nDS1(config-router)# network 192.168.1.0 0.0.0.255 area 0",
+      "risk_level": "High"
+    },
+    "human_correction": {
+      "root_cause": "Interface GigabitEthernet0/24 is 'administratively down'. Physical/Layer 1 shutdown must be resolved before any routing protocol can establish.",
+      "corrected_fix": "DS1(config)# interface GigabitEthernet0/24\nDS1(config-if)# no shutdown\nDS1(config-if)# end",
+      "reviewer_notes": "AI proposed a complex OSPF reconfiguration without checking interface state. The interface was simply administratively disabled."
+    },
+    "lesson_learned": "AI tends to overcomplicate diagnoses by jumping straight to Layer 3 routing rather than checking basic Layer 1/2 interface status.",
+    "guardrail_implemented": "Enforced Layer 1 interface status checks to run first in the diagnostic pipeline."
+  },
+  {
+    "log_id": "RAI-003",
+    "case_id": "CASE-007",
+    "case_title": "NAT PAT Failure - Missing Overload Keyword",
+    "reviewer": "Devon Patel (Security & Infrastructure Lead)",
+    "review_date": "2026-08-19",
+    "verdict": "Edited",
+    "error_category": "Incomplete Command Remediation",
+    "original_ai_diagnosis": {
+      "root_cause": "Missing overload keyword on NAT statement.",
+      "suggested_fix": "R1(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload",
+      "risk_level": "Low"
+    },
+    "human_correction": {
+      "root_cause": "Missing overload keyword, PLUS stale static 1-to-1 translations remain in the NAT table until cleared.",
+      "corrected_fix": "R1(config)# no ip nat inside source list 1 interface GigabitEthernet0/1\nR1(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload\nR1(config)# end\nR1# clear ip nat translation *",
+      "reviewer_notes": "Without negating the old command ('no ip nat inside...') and executing 'clear ip nat translation *', Cisco IOS will reject modifying the NAT rule while active translations exist."
+    },
+    "lesson_learned": "Cisco IOS requires explicit session clearing when switching from dynamic 1-to-1 NAT to PAT/overload.",
+    "guardrail_implemented": "Added automatic rollback and translation clearing commands to NAT remediation templates."
+  },
+  {
+    "log_id": "RAI-004",
+    "case_id": "CASE-003",
+    "case_title": "DHCP Pool Exhaustion & Subnet Allocation Error",
+    "reviewer": "Elena Rostova (Systems Administrator)",
+    "review_date": "2026-08-19",
+    "verdict": "Edited",
+    "error_category": "Disruptive Fix Timing & Unnecessary Device Reload",
+    "original_ai_diagnosis": {
+      "root_cause": "DHCP Pool Exhaustion.",
+      "suggested_fix": "R1(config)# ip dhcp pool POOL_FINANCE\nR1(config-dhcp)# network 192.168.40.0 255.255.255.0\nR1# reload",
+      "risk_level": "Critical"
+    },
+    "human_correction": {
+      "root_cause": "Subnet mask /28 in DHCP pool was too small. Reloading the router causes production outage for all departments.",
+      "corrected_fix": "R1(config)# ip dhcp pool POOL_FINANCE\nR1(config-dhcp)# network 192.168.40.0 255.255.255.0\nR1(config-dhcp)# end\nR1# clear ip dhcp binding *",
+      "reviewer_notes": "AI recommended a full router 'reload'. Network engineers should never reboot production routers when clearing the DHCP binding table is sufficient."
+    },
+    "lesson_learned": "AI models often suggest drastic measures (like reboots) for software table state issues. Human review prevents unnecessary downtime.",
+    "guardrail_implemented": "Added risk guardrail flagging 'reload' commands as dangerous."
+  },
+  {
+    "log_id": "RAI-005",
+    "case_id": "CASE-001",
+    "case_title": "Inter-VLAN Routing Failure - Subinterface Tag Mismatch",
+    "reviewer": "Marcus Vance (CCIE Enterprise #49281)",
+    "review_date": "2026-08-19",
+    "verdict": "Edited",
+    "error_category": "Cisco CLI Syntax Invalidation",
+    "original_ai_diagnosis": {
+      "root_cause": "Subinterface G0/0/0.20 has wrong dot1Q tag 25.",
+      "suggested_fix": "R1(config)# interface GigabitEthernet0/0/0.20\nR1(config-subif)# encapsulation dot1Q 20",
+      "risk_level": "Medium"
+    },
+    "human_correction": {
+      "root_cause": "Subinterface tag mismatch. In Cisco IOS, modifying encapsulation on an existing subinterface removes the IP address.",
+      "corrected_fix": "R1(config)# interface GigabitEthernet0/0/0.20\nR1(config-subif)# encapsulation dot1Q 20\nR1(config-subif)# ip address 192.168.20.1 255.255.255.0\nR1(config-subif)# end\nR1# write memory",
+      "reviewer_notes": "Changing encapsulation dot1Q on Cisco IOS automatically wipes out the configured IP address on that subinterface. The IP address must be re-applied in the same config session."
+    },
+    "lesson_learned": "Cisco IOS subinterfaces drop their IP configuration when the dot1Q encapsulation tag is altered. Junior engineers and AI frequently miss this side-effect.",
+    "guardrail_implemented": "Enforced rule that subinterface encapsulation modifications must always be paired with the corresponding 'ip address' command."
+  }
+]

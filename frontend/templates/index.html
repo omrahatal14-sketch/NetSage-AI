@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetSage AI | AI-Assisted Network Troubleshooting Helper</title>
+  <meta name="description" content="AI-assisted Cisco Packet Tracer troubleshooting assistant with deterministic rule checking, evidence quotes, and mandatory human-in-the-loop review.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Background Glow & Grid -->
+  <div class="cyber-grid"></div>
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <!-- Main Container -->
+  <div class="app-wrapper">
+    <!-- Header Navigation -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <i data-lucide="network" class="brand-icon"></i>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">NetSage <span class="accent-text">AI</span></div>
+          <div class="brand-subtitle">Cisco Network Diagnostic Engine & Human Review Hub</div>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button class="nav-btn active" id="navDashboard" onclick="switchTab('dashboard')">
+          <i data-lucide="layout-dashboard"></i> Dashboard
+        </button>
+        <button class="nav-btn" id="navWorkbench" onclick="switchTab('workbench')">
+          <i data-lucide="terminal-square"></i> Troubleshooting Lab
+        </button>
+        <button class="nav-btn" id="navAudit" onclick="switchTab('audit')">
+          <i data-lucide="shield-alert"></i> Responsible AI Audit
+        </button>
+        <button class="nav-btn" id="navPrompts" onclick="switchTab('prompts')">
+          <i data-lucide="file-code"></i> Prompt Studio
+        </button>
+        <button class="nav-btn" id="navRules" onclick="switchTab('rules')">
+          <i data-lucide="check-circle-2"></i> Rule Sandbox
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openApiKeyModal()">
+          <i data-lucide="key"></i> API Key
+        </button>
+        <a href="/api/export/csv" class="btn btn-primary btn-sm" id="btnExportCsv">
+          <i data-lucide="download"></i> Export cases.csv
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+
+      <!-- ================= TAB 1: DASHBOARD ================= -->
+      <section id="tab-dashboard" class="tab-content active">
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+          <div class="hero-content">
+            <div class="badge badge-accent"><i data-lucide="shield-check"></i> Human-in-the-Loop Network AI</div>
+            <h1 class="hero-title">Intelligent Cisco Lab Troubleshooting with Deterministic Safeguards</h1>
+            <p class="hero-desc">
+              Bridging junior networking gaps across VLANs, Routing, DHCP, DNS, ACLs, and NAT.
+              Combines deterministic rule checking with LLM evidence extraction and mandatory expert engineer approval.
+            </p>
+            <div class="hero-buttons">
+              <button class="btn btn-primary" onclick="switchTab('workbench')">
+                <i data-lucide="play"></i> Launch Troubleshooting Workbench
+              </button>
+              <button class="btn btn-secondary" onclick="switchTab('audit')">
+                <i data-lucide="history"></i> View Responsible AI Log (5+ Cases)
+              </button>
+            </div>
+          </div>
+          <div class="hero-stats-grid">
+            <div class="kpi-card glass-panel">
+              <div class="kpi-icon icon-cyan"><i data-lucide="folder-git-2"></i></div>
+              <div class="kpi-value" id="kpiTotalCases">32</div>
+              <div class="kpi-label">Lab Troubleshooting Cases</div>
+            </div>
+            <div class="kpi-card glass-panel">
+              <div class="kpi-icon icon-green"><i data-lucide="check-check"></i></div>
+              <div class="kpi-value" id="kpiAccuracy">94.2%</div>
+              <div class="kpi-label">AI Diagnostic Accuracy</div>
+            </div>
+            <div class="kpi-card glass-panel">
+              <div class="kpi-icon icon-purple"><i data-lucide="user-check"></i></div>
+              <div class="kpi-value" id="kpiReviews">12</div>
+              <div class="kpi-label">Human Review Audits</div>
+            </div>
+            <div class="kpi-card glass-panel">
+              <div class="kpi-icon icon-amber"><i data-lucide="cpu"></i></div>
+              <div class="kpi-value" id="kpiRulesCount">10+</div>
+              <div class="kpi-label">Deterministic Rules Active</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <div class="glass-card chart-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="pie-chart"></i> Issue Types by Concept</div>
+              <span class="card-badge">32 Scenarios</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartCategory"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-card chart-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="layers"></i> Faults by OSI Layer</div>
+              <span class="card-badge">L1 to L7</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartOsi"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-card chart-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="alert-triangle"></i> Severity Distribution</div>
+              <span class="card-badge">Critical to Low</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartSeverity"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-card chart-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="git-pull-request"></i> Human Review Verdicts</div>
+              <span class="card-badge">Accepted / Edited / Rejected</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartVerdicts"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: TROUBLESHOOTING WORKBENCH ================= -->
+      <section id="tab-workbench" class="tab-content">
+        <!-- Workbench Controls -->
+        <div class="workbench-top-bar glass-panel">
+          <div class="case-selector-group">
+            <label for="caseSelect"><i data-lucide="list-filter"></i> Select Case Scenario:</label>
+            <select id="caseSelect" class="form-select" onchange="onCaseSelected()">
+              <option value="">-- Choose a Packet Tracer Case (32 Available) --</option>
+            </select>
+          </div>
+
+          <div class="filter-chips">
+            <button class="chip active" onclick="filterCases('All')">All (32)</button>
+            <button class="chip" onclick="filterCases('VLAN')">VLAN</button>
+            <button class="chip" onclick="filterCases('Routing')">Routing</button>
+            <button class="chip" onclick="filterCases('ACL')">ACL</button>
+            <button class="chip" onclick="filterCases('NAT')">NAT</button>
+            <button class="chip" onclick="filterCases('DHCP')">DHCP</button>
+            <button class="chip" onclick="filterCases('DNS')">DNS</button>
+            <button class="chip" onclick="filterCases('STP')">STP/Sec</button>
+          </div>
+
+          <button class="btn btn-secondary btn-sm" onclick="toggleCustomScenarioModal()">
+            <i data-lucide="plus-circle"></i> Custom Scenario
+          </button>
+        </div>
+
+        <!-- Workbench Grid -->
+        <div class="workbench-grid">
+          <!-- Left Column: Case Overview & CLI Show Outputs -->
+          <div class="workbench-col-left">
+            <!-- Scenario Header Card -->
+            <div class="glass-card case-summary-card">
+              <div class="case-header-meta">
+                <span class="badge badge-cyan" id="caseMetaId">CASE-001</span>
+                <span class="badge badge-blue" id="caseMetaCategory">VLAN</span>
+                <span class="badge badge-purple" id="caseMetaOsi">Layer 3</span>
+                <span class="badge badge-red" id="caseMetaSeverity">High Severity</span>
+              </div>
+              <h2 class="case-title" id="caseTitle">Select a troubleshooting case to begin</h2>
+              <div class="case-symptom-box">
+                <strong><i data-lucide="activity"></i> Observed Symptom:</strong>
+                <p id="caseSymptom">No case selected.</p>
+              </div>
+              <div class="case-topology-box">
+                <strong><i data-lucide="git-branch"></i> Topology Context:</strong>
+                <p id="caseTopology">Select a case above to view network topology notes.</p>
+              </div>
+            </div>
+
+            <!-- Terminal / Show Outputs Box -->
+            <div class="glass-card terminal-card">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <div class="terminal-title">
+                  <i data-lucide="terminal"></i> Cisco IOS Show-Command & Config Evidence
+                </div>
+                <button class="btn-icon" onclick="copyShowOutputs()" title="Copy CLI Output">
+                  <i data-lucide="copy"></i>
+                </button>
+              </div>
+              <div class="terminal-body" id="terminalShowOutputs">
+                <pre><code id="codeShowOutputs">// Select a scenario or paste Cisco show-command output...</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Action Triggers, Diagnostics, & Review -->
+          <div class="workbench-col-right">
+            <!-- Action Trigger Bar -->
+            <div class="glass-card action-bar-card">
+              <div class="action-buttons-wrapper">
+                <button class="btn btn-primary btn-lg pulse" id="btnRunDiagnosis" onclick="runDiagnosis()">
+                  <i data-lucide="sparkles"></i> Run AI Diagnosis
+                </button>
+                <button class="btn btn-secondary btn-lg" id="btnRunRuleCheck" onclick="runRuleCheckerOnly()">
+                  <i data-lucide="check-circle-2"></i> Run Rule Checker
+                </button>
+              </div>
+              <div class="api-mode-indicator">
+                <span class="indicator-dot online"></span>
+                <span id="engineModeText">Hybrid Engine: Deterministic Rules + Expert LLM</span>
+              </div>
+            </div>
+
+            <!-- Deterministic Rule Findings Panel -->
+            <div class="glass-card findings-card" id="cardRuleFindings" style="display: none;">
+              <div class="card-header">
+                <div class="card-title"><i data-lucide="check-circle"></i> Deterministic Rule Engine Findings</div>
+                <span class="badge badge-green" id="badgeRuleCount">0 Findings</span>
+              </div>
+              <div class="findings-list" id="ruleFindingsList">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- AI Diagnostic Output Panel -->
+            <div class="glass-card diagnosis-card" id="cardAiDiagnosis" style="display: none;">
+              <div class="card-header">
+                <div class="card-title"><i data-lucide="bot"></i> NetSage AI Diagnostic Report</div>
+                <div class="diagnosis-badges">
+                  <span class="badge badge-purple" id="diagOsiBadge">Layer 3</span>
+                  <span class="badge badge-green" id="diagConfidenceBadge">96% Confidence</span>
+                </div>
+              </div>
+
+              <!-- Root Cause Section -->
+              <div class="diag-section">
+                <div class="diag-section-title"><i data-lucide="alert-circle"></i> Root Cause Diagnosis:</div>
+                <p class="diag-root-cause-text" id="diagRootCause">Analysis pending...</p>
+              </div>
+
+              <!-- Quoted Evidence Section -->
+              <div class="diag-section">
+                <div class="diag-section-title"><i data-lucide="quote"></i> Quoted CLI Evidence:</div>
+                <div class="evidence-quotes-container" id="diagEvidenceList">
+                  <!-- Quoted lines -->
+                </div>
+              </div>
+
+              <!-- Next Diagnostic Commands -->
+              <div class="diag-section">
+                <div class="diag-section-title"><i data-lucide="terminal"></i> Next Diagnostic Commands:</div>
+                <div class="command-block-mini" id="diagNextCommands">
+                  <!-- Commands -->
+                </div>
+              </div>
+
+              <!-- Recommended Fix Script -->
+              <div class="diag-section">
+                <div class="diag-section-title"><i data-lucide="wrench"></i> Recommended Cisco IOS Fix Script:</div>
+                <div class="fix-script-wrapper">
+                  <pre><code id="diagFixScript">// Configuration script</code></pre>
+                  <button class="btn-icon copy-fix-btn" onclick="copyFixScript()" title="Copy Fix">
+                    <i data-lucide="copy"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Verification Steps -->
+              <div class="diag-section">
+                <div class="diag-section-title"><i data-lucide="check-square"></i> Verification Steps:</div>
+                <div class="command-block-mini" id="diagVerifSteps">
+                  <!-- Verification commands -->
+                </div>
+              </div>
+
+              <!-- Simulation Button -->
+              <div class="simulation-action">
+                <button class="btn btn-accent w-full" onclick="simulatePacketTracerFix()">
+                  <i data-lucide="play-circle"></i> Simulate Fix & Run Verification in Packet Tracer Sandbox
+                </button>
+              </div>
+            </div>
+
+            <!-- Packet Tracer Fix Simulator Box -->
+            <div class="glass-card simulator-card" id="cardSimulator" style="display: none;">
+              <div class="card-header">
+                <div class="card-title"><i data-lucide="cpu"></i> Packet Tracer Virtual Execution Sandbox</div>
+                <span class="badge badge-green" id="simStatusBadge">Simulation Complete</span>
+              </div>
+              <div class="terminal-body sim-terminal">
+                <pre><code id="simTerminalOutput">Executing simulated fix...</code></pre>
+              </div>
+            </div>
+
+            <!-- Human Review Panel -->
+            <div class="glass-card review-panel-card" id="cardHumanReview" style="display: none;">
+              <div class="card-header">
+                <div class="card-title"><i data-lucide="user-check"></i> Human-in-the-Loop Review Console</div>
+                <span class="badge badge-amber"><i data-lucide="lock"></i> Approval Required</span>
+              </div>
+              <p class="review-instructions">
+                Certified network engineer review is required before changes are pushed to production routers/switches.
+              </p>
+
+              <div class="review-actions-row">
+                <button class="btn btn-success" onclick="selectReviewVerdict('Accepted')">
+                  <i data-lucide="check"></i> Accept Fix
+                </button>
+                <button class="btn btn-warning" onclick="selectReviewVerdict('Edited')">
+                  <i data-lucide="edit-3"></i> Edit Fix
+                </button>
+                <button class="btn btn-danger" onclick="selectReviewVerdict('Rejected')">
+                  <i data-lucide="x-circle"></i> Reject Fix
+                </button>
+              </div>
+
+              <!-- Review Form -->
+              <div class="review-form" id="reviewForm" style="display: none;">
+                <div class="form-group">
+                  <label>Reviewer Name / ID:</label>
+                  <input type="text" id="reviewName" class="form-input" value="Network Engineer">
+                </div>
+
+                <div class="form-group" id="groupErrorCategory" style="display: none;">
+                  <label>Error Category / Root Cause of AI Discrepancy:</label>
+                  <select id="reviewErrorCategory" class="form-select">
+                    <option value="Subtle Mask / Wildcard Error">Subtle Mask / Wildcard Inversion</option>
+                    <option value="Layer Skip (Diagnosed L3 before L1/L2)">Layer Skip (Diagnosed L3 before L1/L2)</option>
+                    <option value="Incomplete Command Sequence / State Lock">Incomplete Command Sequence / State Lock</option>
+                    <option value="Disruptive Action / High Risk Reboot">Disruptive Action / High Risk Reboot</option>
+                    <option value="Cisco CLI Syntax Invalidation / Side-Effect">Cisco CLI Syntax Invalidation / Side-Effect</option>
+                    <option value="Other">Other Contextual Correction</option>
+                  </select>
+                </div>
+
+                <div class="form-group" id="groupEditedFix" style="display: none;">
+                  <label>Corrected Cisco IOS Configuration Script:</label>
+                  <textarea id="reviewEditedFix" class="form-textarea" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>Reviewer Notes / Lessons Learned:</label>
+                  <textarea id="reviewNotes" class="form-textarea" rows="2" placeholder="Explain reasoning for acceptance, modification, or rejection..."></textarea>
+                </div>
+
+                <button class="btn btn-primary w-full" onclick="submitHumanReview()">
+                  <i data-lucide="save"></i> Submit Review & Record in Responsible AI Audit Trail
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: RESPONSIBLE AI AUDIT HUB ================= -->
+      <section id="tab-audit" class="tab-content">
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title"><i data-lucide="shield-alert"></i> Responsible AI & Human Oversight Hub</h2>
+            <p class="section-desc">
+              Tracking every instance where AI output was accepted, refined, or corrected by network engineers.
+              Documents failure modes, error taxonomies, and implemented deterministic safeguards.
+            </p>
+          </div>
+          <div class="audit-controls">
+            <input type="text" id="searchAuditInput" class="form-input" placeholder="Search audit log..." onkeyup="filterAuditLogs()">
+          </div>
+        </div>
+
+        <!-- Corrected Incidents Showcase (At least 5 real case studies) -->
+        <h3 class="subsection-title"><i data-lucide="flame"></i> Case Studies: Top 5 Documented AI Corrections</h3>
+        <div class="showcase-grid" id="raiShowcaseGrid">
+          <!-- Dynamically populated with 5+ detailed case studies -->
+        </div>
+
+        <!-- Full Audit Trail Table -->
+        <div class="glass-card audit-table-card mt-6">
+          <div class="card-header">
+            <div class="card-title"><i data-lucide="clipboard-list"></i> Complete Human-in-the-Loop Audit Log</div>
+            <span class="badge badge-cyan" id="totalReviewsCount">5 Entries</span>
+          </div>
+          <div class="table-responsive">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>Log ID</th>
+                  <th>Case ID & Scenario</th>
+                  <th>Reviewer</th>
+                  <th>Date</th>
+                  <th>Verdict</th>
+                  <th>AI Error Category</th>
+                  <th>Reviewer Notes & Action</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: PROMPT STUDIO ================= -->
+      <section id="tab-prompts" class="tab-content">
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title"><i data-lucide="file-code"></i> AI Prompt Engineering Studio</h2>
+            <p class="section-desc">
+              Inspect, test, and refine the structured prompt architecture powering NetSage AI's network reasoning.
+            </p>
+          </div>
+        </div>
+
+        <div class="prompts-grid">
+          <div class="glass-card prompt-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="terminal"></i> System Prompt (`system_prompt.md`)</div>
+              <button class="btn-icon" onclick="copySystemPrompt()"><i data-lucide="copy"></i></button>
+            </div>
+            <div class="prompt-body">
+              <pre><code id="codeSystemPrompt">Loading system prompt...</code></pre>
+            </div>
+          </div>
+
+          <div class="glass-card prompt-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="file-text"></i> Diagnosis Prompt Schema (`diagnose_prompt.md`)</div>
+              <button class="btn-icon" onclick="copyDiagnosePrompt()"><i data-lucide="copy"></i></button>
+            </div>
+            <div class="prompt-body">
+              <pre><code id="codeDiagnosePrompt">Loading diagnose prompt...</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: RULE CHECKER SANDBOX ================= -->
+      <section id="tab-rules" class="tab-content">
+        <div class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title"><i data-lucide="check-circle-2"></i> Deterministic Rule Checker Testing Lab</h2>
+            <p class="section-desc">
+              Test Python deterministic regex rules against custom Cisco IOS configurations or show commands.
+            </p>
+          </div>
+        </div>
+
+        <div class="rules-sandbox-grid">
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="edit"></i> Input Custom Cisco Configuration or Show Output</div>
+            </div>
+            <div class="form-group mt-3">
+              <label>Symptom / Problem Description:</label>
+              <input type="text" id="sandboxSymptom" class="form-input" placeholder="e.g. PC cannot reach server across VLANs">
+            </div>
+            <div class="form-group">
+              <label>Cisco CLI Show Outputs / Config Lines:</label>
+              <textarea id="sandboxShowOutputs" class="form-textarea" rows="10" placeholder="Paste Cisco running-config, show ip interface brief, show ip route, etc..."></textarea>
+            </div>
+            <button class="btn btn-primary w-full" onclick="testCustomRules()">
+              <i data-lucide="play"></i> Execute Deterministic Checks
+            </button>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title"><i data-lucide="list-checks"></i> Detection Results</div>
+              <span class="badge badge-green" id="sandboxResultCount">0 Rules Triggered</span>
+            </div>
+            <div class="sandbox-results-container" id="sandboxResultsList">
+              <p class="text-muted">Enter configuration and click Execute to view deterministic rule findings.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Custom Scenario Modal -->
+    <div class="modal-overlay" id="customScenarioModal">
+      <div class="modal-card glass-panel">
+        <div class="modal-header">
+          <div class="modal-title"><i data-lucide="plus-circle"></i> Create Custom Troubleshooting Scenario</div>
+          <button class="btn-icon" onclick="toggleCustomScenarioModal()"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Scenario Title:</label>
+            <input type="text" id="custTitle" class="form-input" placeholder="e.g. OSPF Authentication Failure">
+          </div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>Concept Category:</label>
+              <select id="custCategory" class="form-select">
+                <option value="VLAN">VLAN</option>
+                <option value="Routing">Routing</option>
+                <option value="ACL">ACL</option>
+                <option value="NAT">NAT</option>
+                <option value="DHCP">DHCP</option>
+                <option value="DNS">DNS</option>
+                <option value="STP / Security">STP / Security</option>
+                <option value="Wireless">Wireless</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label>OSI Layer:</label>
+              <select id="custOsi" class="form-select">
+                <option value="Layer 1">Layer 1 (Physical)</option>
+                <option value="Layer 2">Layer 2 (Data Link)</option>
+                <option value="Layer 3" selected>Layer 3 (Network)</option>
+                <option value="Layer 4">Layer 4 (Transport)</option>
+                <option value="Layer 7">Layer 7 (Application)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Observed Symptom:</label>
+            <textarea id="custSymptom" class="form-textarea" rows="2" placeholder="Describe the symptom..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Topology Notes:</label>
+            <textarea id="custTopology" class="form-textarea" rows="2" placeholder="Describe connected routers/switches/hosts..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Cisco Show Outputs & Configuration:</label>
+            <textarea id="custShowOutputs" class="form-textarea" rows="5" placeholder="Paste CLI outputs..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="toggleCustomScenarioModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="loadCustomScenarioIntoWorkbench()">Load into Workbench</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div class="modal-overlay" id="apiKeyModal">
+      <div class="modal-card glass-panel modal-sm">
+        <div class="modal-header">
+          <div class="modal-title"><i data-lucide="key"></i> Live Gemini API Configuration</div>
+          <button class="btn-icon" onclick="closeApiKeyModal()"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-sm text-muted mb-3">
+            NetSage AI includes high-fidelity built-in offline diagnostics for all 32 lab scenarios.
+            Optionally provide a Google Gemini API Key for live dynamic generation on custom lab topologies:
+          </p>
+          <div class="form-group">
+            <label>Gemini API Key:</label>
+            <input type="password" id="inputApiKey" class="form-input" placeholder="AIzaSy...">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeApiKeyModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-brand">NetSage AI &bull; Cisco Lab Troubleshooting Platform</div>
+        <div class="footer-meta">Dataset: 32 Scenarios &bull; Rule Engine: Active &bull; Human Oversight: Mandatory</div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
