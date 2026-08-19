@@ -41,6 +41,10 @@ if not os.path.exists(CASES_CSV_PATH):
 ai_engine = NetSageAIEngine(cases_path=CASES_JSON_PATH)
 rule_checker = DeterministicRuleChecker()
 
+# In-memory store for serverless environments (e.g. Vercel)
+IN_MEMORY_USER_REVIEWS = []
+TMP_REVIEWS_PATH = "/tmp/human_reviews.json"
+
 def load_cases():
     if os.path.exists(CASES_JSON_PATH):
         with open(CASES_JSON_PATH, "r", encoding="utf-8") as f:
@@ -49,26 +53,55 @@ def load_cases():
 
 def load_reviews():
     reviews = []
+    seen_ids = set()
+
+    # 1. Base Responsible AI Log
     if os.path.exists(RAI_LOG_PATH):
-        with open(RAI_LOG_PATH, "r", encoding="utf-8") as f:
-            reviews.extend(json.load(f))
-    if os.path.exists(REVIEWS_STORAGE_PATH):
-        with open(REVIEWS_STORAGE_PATH, "r", encoding="utf-8") as f:
-            user_reviews = json.load(f)
-            reviews.extend(user_reviews)
+        try:
+            with open(RAI_LOG_PATH, "r", encoding="utf-8") as f:
+                for r in json.load(f):
+                    reviews.append(r)
+                    seen_ids.add(r.get("log_id"))
+        except Exception:
+            pass
+
+    # 2. In-Memory User Reviews
+    for r in IN_MEMORY_USER_REVIEWS:
+        if r.get("log_id") not in seen_ids:
+            reviews.append(r)
+            seen_ids.add(r.get("log_id"))
+
+    # 3. Persistent Local / /tmp File Reviews
+    for path in [REVIEWS_STORAGE_PATH, TMP_REVIEWS_PATH]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    for r in json.load(f):
+                        if r.get("log_id") not in seen_ids:
+                            reviews.append(r)
+                            seen_ids.add(r.get("log_id"))
+            except Exception:
+                pass
+
     return reviews
 
 def save_user_review(new_review):
-    user_reviews = []
-    if os.path.exists(REVIEWS_STORAGE_PATH):
+    global IN_MEMORY_USER_REVIEWS
+    IN_MEMORY_USER_REVIEWS.insert(0, new_review)
+
+    # Attempt to persist to disk (local dev or /tmp on Vercel)
+    for path in [REVIEWS_STORAGE_PATH, TMP_REVIEWS_PATH]:
         try:
-            with open(REVIEWS_STORAGE_PATH, "r", encoding="utf-8") as f:
-                user_reviews = json.load(f)
-        except Exception:
             user_reviews = []
-    user_reviews.insert(0, new_review)
-    with open(REVIEWS_STORAGE_PATH, "w", encoding="utf-8") as f:
-        json.dump(user_reviews, f, indent=2)
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    user_reviews = json.load(f)
+            user_reviews.insert(0, new_review)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(user_reviews, f, indent=2)
+            break
+        except Exception:
+            continue
 
 @app.route("/")
 def index():
